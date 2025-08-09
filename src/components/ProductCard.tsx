@@ -1,15 +1,31 @@
 'use client';
 
-import { Product, CatalogTheme } from '@/types/catalog';
+import { Product, CatalogTheme, PremiumFeatures } from '@/types/catalog';
 import { motion } from 'framer-motion';
+import { ShoppingCart, Share2 } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductCardProps {
   product: Product;
   index: number;
   theme?: CatalogTheme;
+  features?: PremiumFeatures;
+  storeName?: string;
 }
 
-export default function ProductCard({ product, index, theme }: ProductCardProps) {
+export default function ProductCard({ product, index, theme, features, storeName }: ProductCardProps) {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
+
+  const handleShare = () => {
+    const message = `¡Mira este producto de ${storeName}!\n\n${product.name}\n${product.description}\nPrecio: $${product.price}\n\n¿Te interesa?`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -55,9 +71,37 @@ export default function ProductCard({ product, index, theme }: ProductCardProps)
           {product.name}
         </h3>
         
-        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">
           {product.description}
         </p>
+
+        {/* Botones Premium */}
+        <div className="flex gap-2 mt-auto">
+          {/* Carrito (Premium) */}
+          {features?.shoppingCart?.enabled && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleAddToCart}
+              className="flex-1 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-1 text-sm font-medium"
+            >
+              <ShoppingCart size={14} />
+              Agregar
+            </motion.button>
+          )}
+
+          {/* Compartir (Premium) */}
+          {features?.shareProducts?.enabled && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleShare}
+              className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+            >
+              <Share2 size={16} />
+            </motion.button>
+          )}
+        </div>
       </div>
 
       {/* Indicador de hover */}

@@ -5,7 +5,6 @@ import { Product } from '@/types/catalog';
 import { Upload, FileSpreadsheet, Download, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
-import ExcelWithImagesGuide from './ExcelWithImagesGuide';
 
 interface ExcelImporterProps {
   onImport: (products: Product[]) => void;
@@ -159,9 +158,6 @@ export default function ExcelImporter({ onImport }: ExcelImporterProps) {
       </h2>
       
       <div className="space-y-4">
-        {/* Guía para Excel con imágenes */}
-        <ExcelWithImagesGuide />
-
         {/* Instrucciones */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-semibold text-blue-900 mb-2">📋 Instrucciones</h3>

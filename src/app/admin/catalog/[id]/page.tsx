@@ -89,6 +89,8 @@ export default function AdminCatalogView() {
                   Ver Catálogo Público
                 </motion.button>
               </Link>
+              
+
             </div>
           </div>
         </div>
