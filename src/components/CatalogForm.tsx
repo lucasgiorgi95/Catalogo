@@ -53,11 +53,19 @@ export default function CatalogForm({ onSave }: CatalogFormProps) {
     saturday: { open: "09:00", close: "18:00", closed: false },
     sunday: { open: "09:00", close: "18:00", closed: true },
   });
+  const [generalDiscount, setGeneralDiscount] = useState({
+    enabled: false,
+    percentage: 0,
+    label: "",
+  });
   const [currentProduct, setCurrentProduct] = useState({
     name: "",
     description: "",
     price: "",
     image: "",
+    discountEnabled: false,
+    discountPercentage: 0,
+    discountLabel: "",
   });
 
   const handleImageUpload = (
@@ -93,9 +101,22 @@ export default function CatalogForm({ onSave }: CatalogFormProps) {
         description: currentProduct.description,
         price: parseFloat(currentProduct.price),
         image: currentProduct.image || undefined,
+        discount: currentProduct.discountEnabled ? {
+          enabled: true,
+          percentage: currentProduct.discountPercentage,
+          label: currentProduct.discountLabel || undefined,
+        } : undefined,
       };
       setProducts([...products, newProduct]);
-      setCurrentProduct({ name: "", description: "", price: "", image: "" });
+      setCurrentProduct({ 
+        name: "", 
+        description: "", 
+        price: "", 
+        image: "",
+        discountEnabled: false,
+        discountPercentage: 0,
+        discountLabel: "",
+      });
     }
   };
 
@@ -157,6 +178,7 @@ export default function CatalogForm({ onSave }: CatalogFormProps) {
         planType: selectedPlan,
         premiumFeatures,
         businessHours,
+        generalDiscount: generalDiscount.enabled ? generalDiscount : undefined,
         createdAt: new Date(),
       };
 
@@ -481,6 +503,72 @@ export default function CatalogForm({ onSave }: CatalogFormProps) {
               </div>
             </CollapsibleSection>
 
+            {/* Descuento General */}
+            <CollapsibleSection
+              title="Descuento General"
+              subtitle="Aplica un descuento a todo el catálogo"
+              icon={<span className="text-lg">🏷️</span>}
+            >
+              <div className="space-y-4 mt-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={generalDiscount.enabled}
+                    onChange={(e) => {
+                      setGeneralDiscount(prev => ({
+                        ...prev,
+                        enabled: e.target.checked
+                      }));
+                    }}
+                    className="rounded"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Activar descuento general</span>
+                </div>
+
+                {generalDiscount.enabled && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Porcentaje de descuento
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="90"
+                        value={generalDiscount.percentage}
+                        onChange={(e) => {
+                          setGeneralDiscount(prev => ({
+                            ...prev,
+                            percentage: parseInt(e.target.value) || 0
+                          }));
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                        placeholder="Ej: 20"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Etiqueta del descuento (opcional)
+                      </label>
+                      <input
+                        type="text"
+                        value={generalDiscount.label}
+                        onChange={(e) => {
+                          setGeneralDiscount(prev => ({
+                            ...prev,
+                            label: e.target.value
+                          }));
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                        placeholder="Ej: Oferta especial, Liquidación"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CollapsibleSection>
+
             {/* Paleta de Colores */}
             <CollapsibleSection
               title="Paleta de Colores"
@@ -613,6 +701,55 @@ export default function CatalogForm({ onSave }: CatalogFormProps) {
                     placeholder="Descripción del producto"
                   />
 
+                  {/* Descuento individual */}
+                  <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <input
+                        type="checkbox"
+                        checked={currentProduct.discountEnabled}
+                        onChange={(e) =>
+                          setCurrentProduct((prev) => ({
+                            ...prev,
+                            discountEnabled: e.target.checked,
+                          }))
+                        }
+                        className="rounded"
+                      />
+                      <span className="text-xs font-medium text-gray-700">Descuento individual</span>
+                    </div>
+
+                    {currentProduct.discountEnabled && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="number"
+                          min="1"
+                          max="90"
+                          value={currentProduct.discountPercentage}
+                          onChange={(e) =>
+                            setCurrentProduct((prev) => ({
+                              ...prev,
+                              discountPercentage: parseInt(e.target.value) || 0,
+                            }))
+                          }
+                          className="px-2 py-1 border border-gray-300 rounded text-xs text-gray-900"
+                          placeholder="% desc."
+                        />
+                        <input
+                          type="text"
+                          value={currentProduct.discountLabel}
+                          onChange={(e) =>
+                            setCurrentProduct((prev) => ({
+                              ...prev,
+                              discountLabel: e.target.value,
+                            }))
+                          }
+                          className="px-2 py-1 border border-gray-300 rounded text-xs text-gray-900"
+                          placeholder="Etiqueta"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-3 mb-3">
                     <input
                       type="file"
@@ -712,6 +849,7 @@ export default function CatalogForm({ onSave }: CatalogFormProps) {
                 products={products}
                 theme={theme}
                 features={premiumFeatures}
+                generalDiscount={generalDiscount.enabled ? generalDiscount : undefined}
               />
             </div>
           </div>

@@ -4,6 +4,11 @@ export interface Product {
   description: string;
   price: number;
   image?: string;
+  discount?: {
+    enabled: boolean;
+    percentage: number;
+    label?: string; // Ej: "Oferta especial", "Liquidación"
+  };
 }
 
 export interface CatalogTheme {
@@ -26,7 +31,7 @@ export interface PremiumFeatures {
     address?: string;
     hours?: string;
   };
-  
+
   // PREMIUM FEATURES
   socialMedia?: {
     enabled: boolean;
@@ -57,7 +62,7 @@ export interface PremiumFeatures {
   };
 }
 
-export type PlanType = 'standard' | 'medium' | 'premium';
+export type PlanType = "standard" | "medium" | "premium";
 
 export interface BusinessHours {
   monday: { open: string; close: string; closed: boolean };
@@ -82,5 +87,10 @@ export interface Catalog {
   planType: PlanType;
   premiumFeatures: PremiumFeatures;
   businessHours?: BusinessHours;
+  generalDiscount?: {
+    enabled: boolean;
+    percentage: number;
+    label?: string;
+  };
   createdAt: Date;
 }

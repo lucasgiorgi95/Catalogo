@@ -12,6 +12,11 @@ interface CatalogPreviewProps {
   products: Product[];
   theme: CatalogTheme;
   features: PremiumFeatures;
+  generalDiscount?: {
+    enabled: boolean;
+    percentage: number;
+    label?: string;
+  };
 }
 
 export default function CatalogPreview({
@@ -23,6 +28,7 @@ export default function CatalogPreview({
   products,
   theme,
   features,
+  generalDiscount,
 }: CatalogPreviewProps) {
   return (
     <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden">
@@ -72,36 +78,59 @@ export default function CatalogPreview({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
-            {products.slice(0, 4).map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-lg p-3 shadow-sm border"
-              >
-                <div className="flex gap-3">
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-12 h-12 rounded object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
-                      IMG
+            {products.slice(0, 4).map((product, index) => {
+              const hasDiscount = product.discount?.enabled && product.discount.percentage > 0;
+              const discountedPrice = hasDiscount 
+                ? product.price * (1 - product.discount!.percentage / 100)
+                : product.price;
+              
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-lg p-3 shadow-sm border relative"
+                >
+                  {hasDiscount && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white px-1 py-0.5 rounded text-xs font-bold">
+                      -{product.discount!.percentage}%
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-sm truncate">{product.name}</h3>
-                    <p className="text-xs text-gray-600 truncate">{product.description}</p>
-                    <p className="text-sm font-bold text-green-600">
-                      ${product.price.toFixed(2)}
-                    </p>
+                  <div className="flex gap-3">
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-12 h-12 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
+                        IMG
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate">{product.name}</h3>
+                      <p className="text-xs text-gray-600 truncate">{product.description}</p>
+                      {hasDiscount ? (
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-green-600">
+                            ${discountedPrice.toFixed(2)}
+                          </p>
+                          <p className="text-xs text-gray-400 line-through">
+                            ${product.price.toFixed(2)}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-bold text-green-600">
+                          ${product.price.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
             
             {products.length > 4 && (
               <div className="text-center py-2 text-gray-500 text-sm">

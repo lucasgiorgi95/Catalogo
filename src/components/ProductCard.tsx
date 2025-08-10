@@ -20,6 +20,13 @@ export default function ProductCard({ product, index, theme, features, storeName
     addToCart(product);
   };
 
+  // Calcular precio con descuento
+  const hasDiscount = product.discount?.enabled && product.discount.percentage > 0;
+  const discountedPrice = hasDiscount 
+    ? product.price * (1 - product.discount!.percentage / 100)
+    : product.price;
+  const originalPrice = product.price;
+
   const handleShare = () => {
     const message = `¡Mira este producto de ${storeName}!\n\n${product.name}\n${product.description}\nPrecio: $${product.price}\n\n¿Te interesa?`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -37,6 +44,16 @@ export default function ProductCard({ product, index, theme, features, storeName
         fontFamily: theme?.fontFamily || 'inherit'
       }}
     >
+      {/* Badge de descuento */}
+      {hasDiscount && (
+        <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10 shadow-lg">
+          -{product.discount!.percentage}%
+          {product.discount!.label && (
+            <div className="text-xs font-normal mt-1">{product.discount!.label}</div>
+          )}
+        </div>
+      )}
+
       {/* Imagen del producto */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         {product.image ? (
@@ -56,12 +73,26 @@ export default function ProductCard({ product, index, theme, features, storeName
         
         {/* Overlay con precio */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <div 
-            className="inline-block px-3 py-1 rounded-full text-white font-bold text-lg"
-            style={{ backgroundColor: theme?.primaryColor || '#16a34a' }}
-          >
-            ${product.price.toFixed(2)}
-          </div>
+          {hasDiscount ? (
+            <div className="flex flex-col gap-1">
+              <div 
+                className="inline-block px-3 py-1 rounded-full text-white font-bold text-lg"
+                style={{ backgroundColor: theme?.primaryColor || '#16a34a' }}
+              >
+                ${discountedPrice.toFixed(2)}
+              </div>
+              <div className="text-white/70 line-through text-sm">
+                ${originalPrice.toFixed(2)}
+              </div>
+            </div>
+          ) : (
+            <div 
+              className="inline-block px-3 py-1 rounded-full text-white font-bold text-lg"
+              style={{ backgroundColor: theme?.primaryColor || '#16a34a' }}
+            >
+              ${product.price.toFixed(2)}
+            </div>
+          )}
         </div>
       </div>
       

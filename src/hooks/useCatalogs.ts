@@ -37,6 +37,10 @@ export const useCatalogs = () => {
           migrated.whatsappNumber = catalog.premiumFeatures?.whatsapp?.number || "";
         }
         
+        if (!catalog.generalDiscount) {
+          migrated.generalDiscount = undefined;
+        }
+        
         return migrated;
       });
       

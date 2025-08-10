@@ -20,6 +20,13 @@ export default function MobileProductCard({ product, index, theme, features, sto
     addToCart(product);
   };
 
+  // Calcular precio con descuento
+  const hasDiscount = product.discount?.enabled && product.discount.percentage > 0;
+  const discountedPrice = hasDiscount 
+    ? product.price * (1 - product.discount!.percentage / 100)
+    : product.price;
+  const originalPrice = product.price;
+
   const handleShare = () => {
     const message = `¡Mira este producto de ${storeName}!\n\n${product.name}\n${product.description}\nPrecio: $${product.price}\n\n¿Te interesa?`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -33,6 +40,15 @@ export default function MobileProductCard({ product, index, theme, features, sto
       transition={{ delay: index * 0.1 }}
       className="bg-gray-900 rounded-lg overflow-hidden mb-4 relative"
     >
+      {/* Badge de descuento */}
+      {hasDiscount && (
+        <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold z-10">
+          -{product.discount!.percentage}%
+          {product.discount!.label && (
+            <div className="text-xs font-normal">{product.discount!.label}</div>
+          )}
+        </div>
+      )}
 
 
       <div className="flex p-4">
@@ -67,9 +83,20 @@ export default function MobileProductCard({ product, index, theme, features, sto
           {/* Precio y botones */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-white font-bold text-xl">
-                $ {product.price.toLocaleString('es-AR')}
-              </span>
+              {hasDiscount ? (
+                <div className="flex flex-col">
+                  <span className="text-white font-bold text-xl">
+                    $ {discountedPrice.toLocaleString('es-AR')}
+                  </span>
+                  <span className="text-gray-400 line-through text-sm">
+                    $ {originalPrice.toLocaleString('es-AR')}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-white font-bold text-xl">
+                  $ {product.price.toLocaleString('es-AR')}
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
